@@ -1,0 +1,506 @@
+{
+	"info": {
+		"_postman_id": "c893e4a9-ba1a-4335-af0e-70c1d2869db7",
+		"name": "OHPEN_GITHUB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Get endpoints",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4e243860-95cb-48bf-b5b1-4b9898c3ee5d",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"//ASSERTS",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}?client_id={{client_id}}&client_secret={{client_secret}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get User Info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4a7e0ba-7941-453b-86b0-fbf50a0291e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var loginUser = jsonData.login;",
+							"var url = jsonData.url;",
+							"var htmlUrl = jsonData.html_url;",
+							"var reposNumber = jsonData.public_repos;",
+							"var creationDate = jsonData.created_at;",
+							"",
+							"//ASSERTS",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"The user's name is the correct one\", function () {",
+							"    pm.expect(loginUser).to.be.equal(data.login);",
+							"});",
+							"",
+							"pm.test(\"The user's url is the correct one\", function () {",
+							"    pm.expect(url).to.be.equal(data.url);",
+							"});",
+							"",
+							"pm.test(\"The user's html url is the correct one\", function () {",
+							"    pm.expect(htmlUrl).to.be.equal(data.html_url);",
+							"});",
+							"",
+							"pm.test(\"The user's repos number is the correct one\", function () {",
+							"    pm.expect(reposNumber).to.be.equal(data.public_repos);",
+							"});",
+							"",
+							"pm.test(\"The user's creation date is the correct one\", function () {",
+							"    pm.expect(creationDate).to.contains(data.created_at);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}/users/barnarock?client_id={{client_id}}&client_secret={{client_secret}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"users",
+						"barnarock"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Create new repo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c94eb278-9787-4e76-b3f2-df8ba2bbce58",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var repoName = jsonData.name;",
+							"var repoFullName = jsonData.full_name;",
+							"var isRepoPrivate = jsonData.private;",
+							"var ownerInfo = JSON.stringify(jsonData.owner);",
+							"var envOwnerInfo = pm.globals.get(\"ownerInfo\");",
+							"",
+							"pm.environment.set(\"repo_name\", repoFullName);",
+							"",
+							"//ASSERTS",
+							"pm.test(\"Status code is 201 Created\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"The owner object is the correct one\", function () {",
+							"    pm.expect(ownerInfo).to.be.equal(envOwnerInfo);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2fd4a233-98e3-4e55-ad4e-e0901ada4110",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": {{repositoryName}}\r\n  ,\"description\": {{repositoryDescription}}\r\n  ,\"homepage\": \"https://github.com\"\r\n  ,\"private\": false\r\n}"
+				},
+				"url": {
+					"raw": "{{url_base}}/user/repos",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"user",
+						"repos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Create repo with same name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c94eb278-9787-4e76-b3f2-df8ba2bbce58",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var message = jsonData.message;",
+							"var errorMessage = jsonData.errors[0].message;",
+							"",
+							"//ASSERTS",
+							"pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+							"    pm.response.to.have.status(422);",
+							"});",
+							"",
+							"pm.test(\"The message and the error message are corrects\", function () {",
+							"    pm.expect(message).to.be.equal('Repository creation failed.');",
+							"    pm.expect(errorMessage).to.be.equal('name already exists on this account');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": {{repositoryName}}\r\n  ,\"description\": {{repositoryDescription}}\r\n  ,\"homepage\": \"https://github.com\"\r\n  ,\"private\": false\r\n}"
+				},
+				"url": {
+					"raw": "{{url_base}}/user/repos",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"user",
+						"repos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5. Validate repos creation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4a7e0ba-7941-453b-86b0-fbf50a0291e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var loginUser = jsonData.login;",
+							"var reposNumber = jsonData.public_repos;",
+							"",
+							"//ASSERTS",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"The user's name is the correct one\", function () {",
+							"    pm.expect(loginUser).to.be.equal(data.login);",
+							"});",
+							"",
+							"pm.test(\"The user's repos number is the correct one\", function () {",
+							"    pm.expect(reposNumber).to.be.equal(data.public_repos_afterCreation);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}/users/barnarock?client_id={{client_id}}&client_secret={{client_secret}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"users",
+						"barnarock"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Delete previous created report",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "69330df7-49d8-4ac3-b208-bc7312889e6a",
+						"exec": [
+							"//ASSERTS",
+							"",
+							"pm.test(\"Status code is 204 no content\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/repos/{{repo_name}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"repos",
+						"{{repo_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Delete nonexistent repo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "69330df7-49d8-4ac3-b208-bc7312889e6a",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"var errorMessage = jsonData.message;",
+							"",
+							"//ASSERTS",
+							"",
+							"pm.test(\"Status code is 404 not found\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"pm.test(\"The error message is the correct one\", function () {",
+							"    pm.expect(errorMessage).to.be.equal('Not Found');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url_base}}/repos/{{repo_name}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"repos",
+						"{{repo_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Validate repos deletion",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4a7e0ba-7941-453b-86b0-fbf50a0291e6",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var loginUser = jsonData.login;",
+							"var reposNumber = jsonData.public_repos;",
+							"",
+							"//ASSERTS",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"The user's name is the correct one\", function () {",
+							"    pm.expect(loginUser).to.be.equal(data.login);",
+							"});",
+							"",
+							"pm.test(\"The user's repos number is the correct one\", function () {",
+							"    pm.expect(reposNumber).to.be.equal(data.public_repos_afterDeletion);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url_base}}/users/barnarock?client_id={{client_id}}&client_secret={{client_secret}}",
+					"host": [
+						"{{url_base}}"
+					],
+					"path": [
+						"users",
+						"barnarock"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9a0a6eb0-a93c-4bb0-ab13-5b8f3c4d9f1e",
+				"type": "text/javascript",
+				"exec": [
+					"var ownerInfo = {",
+					"        \"login\": \"barnarock\",",
+					"        \"id\": 48828621,",
+					"        \"node_id\": \"MDQ6VXNlcjQ4ODI4NjIx\",",
+					"        \"avatar_url\": \"https://avatars0.githubusercontent.com/u/48828621?v=4\",",
+					"        \"gravatar_id\": \"\",",
+					"        \"url\": \"https://api.github.com/users/barnarock\",",
+					"        \"html_url\": \"https://github.com/barnarock\",",
+					"        \"followers_url\": \"https://api.github.com/users/barnarock/followers\",",
+					"        \"following_url\": \"https://api.github.com/users/barnarock/following{/other_user}\",",
+					"        \"gists_url\": \"https://api.github.com/users/barnarock/gists{/gist_id}\",",
+					"        \"starred_url\": \"https://api.github.com/users/barnarock/starred{/owner}{/repo}\",",
+					"        \"subscriptions_url\": \"https://api.github.com/users/barnarock/subscriptions\",",
+					"        \"organizations_url\": \"https://api.github.com/users/barnarock/orgs\",",
+					"        \"repos_url\": \"https://api.github.com/users/barnarock/repos\",",
+					"        \"events_url\": \"https://api.github.com/users/barnarock/events{/privacy}\",",
+					"        \"received_events_url\": \"https://api.github.com/users/barnarock/received_events\",",
+					"        \"type\": \"User\",",
+					"        \"site_admin\": false",
+					"    };",
+					"    pm.globals.set(\"ownerInfo\", JSON.stringify(ownerInfo));",
+					"    var repositoryName = data.repoName;",
+					"    var repositoryDescription = data.repoDescription;",
+					"    pm.globals.set(\"repositoryName\", JSON.stringify(repositoryName));",
+					"    pm.globals.set(\"repositoryDescription\", JSON.stringify(repositoryDescription));"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9acdcaba-6127-444b-81e4-b9d7577ef9b8",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
