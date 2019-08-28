@@ -10,3 +10,4 @@ jobs:
           collection: OHPEN_GITHUB.postman_collection.json
           environment: GITHUB-ENV-TST.postman_environment.json
           iteration-data: inputData.json
+          additional-options: -r cli,junit
