@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   newman: postman/newman@1.0.0
 jobs:
-  newman-collection-run-env-timeout:
+  build:
     executor: newman/postman-newman-docker
     steps:
       - checkout
@@ -11,3 +11,5 @@ jobs:
           environment: GITHUB-ENV-TST.postman_environment.json
           iteration-data: inputData.json
           additional-options: -r cli,junit
+
+          
